@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import fs from 'fs';
 import path from 'path';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 import ConnectToDb from './config/db';
 import urlRoutes from './routes/url';
@@ -19,6 +20,7 @@ config();
     app.use(helmet());
     app.use(morgan('dev'));
     app.use(express.json());
+    app.use(cookieParser());
     app.use(cors({ credentials: true, origin: process.env.ORIGIN, optionsSuccessStatus: 200 }));
 
     if (process.env.NODE_ENV === 'production') {

@@ -1,5 +1,7 @@
 import { Request, Response, Router } from 'express';
-import { hash } from 'bcrypt';
+import { hash, compare } from 'bcrypt';
+import { sign } from 'jsonwebtoken';
+import cookie from 'cookie';
 
 import User from '../models/User';
 import { myUser } from '../types/MyUser';
@@ -46,6 +48,47 @@ router.post('/register', async (req: Request, res: Response) => {
         });
 
         return res.status(200).json({ newUser });
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({ Error: 'A server error occured ' });
+    }
+});
+
+router.post('/login', async (req: Request, res: Response) => {
+    const { username, password } = req.body;
+
+    interface myError {
+        username?: string,
+        password?: string,
+    }
+
+    try {
+        const errors: myError = {};
+
+        if (username === '' || username === undefined) errors.username = 'Username is Required ...';
+        if (password === '' || password === undefined) errors.password = 'Password is Required ...';
+
+        if (Object.keys(errors).length > 0) return res.status(400).json(errors);
+
+        const user: myUser | null = await User.findOne({ username });
+        if (!user) return res.status(404).json({ Error: 'Invalid username' });
+
+        const matchPwd = await compare(password, user.password);
+        if (!matchPwd) return res.status(404).json({ Error: 'Invalid password' });
+
+        // create token and set a cookie
+
+        const token = sign({ username }, process.env.JWT_SECRET!);
+
+        res.set('Set-Cookie', cookie.serialize('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 3600,
+            path: '/',
+        }));
+
+        return res.status(200).json({ user });
     } catch (e) {
         console.log(e);
         return res.status(500).json({ Error: 'A server error occured ' });
