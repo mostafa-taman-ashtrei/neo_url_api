@@ -8,6 +8,7 @@ import cors from 'cors';
 
 import ConnectToDb from './config/db';
 import urlRoutes from './routes/url';
+import authRoutes from './routes/auth';
 
 config();
 
@@ -27,6 +28,7 @@ config();
 
     await ConnectToDb();
 
+    app.use('/auth', authRoutes);
     app.use('/', urlRoutes);
 
     app.listen(port, () => console.log(`Server is running on port ${port}...`));
