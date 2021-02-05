@@ -39,4 +39,20 @@ router.post('/shrink', async (req: Request, res: Response) => {
     }
 });
 
+router.get('/:shortUrl', async (req: Request, res: Response) => {
+    const { shortUrl } = req.params;
+    try {
+        const urlData: MyUrl | null = await Url.findOne({ shortUrl });
+        if (urlData == null) return res.status(404).json({ msg: 'No data Found' });
+
+        urlData.clicks += 1;
+        urlData.save();
+
+        return res.redirect(urlData.fullUrl);
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({ Error: 'A Server Error Occured' });
+    }
+});
+
 export default router;
