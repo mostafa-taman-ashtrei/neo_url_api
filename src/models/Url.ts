@@ -14,6 +14,7 @@ const urlSchema: Schema = new Schema({
         type: String,
         required: true,
         default: nanoid(),
+        unique: 1,
     },
     clicks: {
         type: Number,

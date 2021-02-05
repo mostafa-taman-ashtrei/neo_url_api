@@ -14,15 +14,19 @@ router.post('/shrink', async (req: Request, res: Response) => {
         const isValidUrl = validUrl.isWebUri(fullUrl);
         if (!isValidUrl) return res.status(400).json({ msg: 'Invalid Url' });
 
-        const dataToSubmit = { fullUrl, shortUrl };
         const exists: MyUrl | null = await Url.findOne({ fullUrl });
+        const IsshortUrlTaken: MyUrl | null = await Url.findOne({ shortUrl });
+
+        if (IsshortUrlTaken) return res.status(422).json({ msg: 'this short id already exists' });
+
         if (exists) {
             return res.json({
                 msg: 'This url has already been shrunk',
-                shortUrl: exists.shortUrl,
+                shortUrl: exists?.shortUrl,
             });
         }
 
+        const dataToSubmit = { fullUrl, shortUrl };
         if (shortUrl === '') dataToSubmit.shortUrl = nanoid();
         console.log(dataToSubmit);
 
@@ -31,7 +35,7 @@ router.post('/shrink', async (req: Request, res: Response) => {
         return res.status(200).json(newUrl);
     } catch (e) {
         console.log(e);
-        return res.status(500).json({ Error: e });
+        return res.status(500).json({ Error: 'A Server Error Occured' });
     }
 });
 
