@@ -1,4 +1,4 @@
-# Telegram_ocr_bot
+# Url_Neo_api
 
 A rest api for shrinking large urls. You can pick a custom name to use as the short url or you can generate a random id and all the short urls are saved in mongodb
 
