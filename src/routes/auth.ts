@@ -5,6 +5,7 @@ import cookie from 'cookie';
 
 import User from '../models/User';
 import { myUser } from '../types/MyUser';
+import isAuth from '../middlewares/isAuth';
 
 const router: Router = Router();
 
@@ -93,6 +94,20 @@ router.post('/login', async (req: Request, res: Response) => {
         console.log(e);
         return res.status(500).json({ Error: 'A server error occured ' });
     }
+});
+
+router.get('/me', isAuth, (_, res) => res.json(res.locals.user));
+
+router.get('/logout', isAuth, (_, res: Response) => {
+    res.set('Set-Cookie', cookie.serialize('token', '', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        expires: new Date(0),
+        path: '/',
+    }));
+
+    return res.status(200).json({ message: 'you are logged out ...' });
 });
 
 export default router;
