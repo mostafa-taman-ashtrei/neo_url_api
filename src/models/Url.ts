@@ -21,6 +21,10 @@ const urlSchema: Schema = new Schema({
         required: true,
         default: 0,
     },
+    username: {
+        type: String,
+        required: true,
+    },
 }, { timestamps: true });
 
 const urlModel: Model<MyUrl> = model('Url', urlSchema);

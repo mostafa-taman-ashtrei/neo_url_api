@@ -4,11 +4,13 @@ import validUrl from 'valid-url';
 
 import Url from '../models/Url';
 import { MyUrl } from '../types/MyUrl';
+import isAuth from '../middlewares/isAuth';
 
 const router: Router = Router();
 
-router.post('/shrink', async (req: Request, res: Response) => {
+router.post('/shrink', isAuth, async (req: Request, res: Response) => {
     const { fullUrl, shortUrl } = req.body;
+    const { username } = res.locals.user;
 
     try {
         const isValidUrl = validUrl.isWebUri(fullUrl);
@@ -22,17 +24,28 @@ router.post('/shrink', async (req: Request, res: Response) => {
         if (exists) {
             return res.json({
                 msg: 'This url has already been shrunk',
-                shortUrl: exists?.shortUrl,
+                shortUrl: exists,
             });
         }
 
-        const dataToSubmit = { fullUrl, shortUrl };
+        const dataToSubmit = { fullUrl, shortUrl, username };
+
         if (shortUrl === '') dataToSubmit.shortUrl = nanoid();
-        console.log(dataToSubmit);
 
-        const newUrl = await Url.create(dataToSubmit);
-
+        const newUrl: MyUrl = await Url.create(dataToSubmit);
         return res.status(200).json(newUrl);
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({ Error: 'A Server Error Occured' });
+    }
+});
+
+router.get('/all', isAuth, async (_, res: Response) => {
+    const { username } = res.locals.user;
+
+    try {
+        const data: MyUrl[] = await Url.find({ username });
+        return res.status(200).json({ data });
     } catch (e) {
         console.log(e);
         return res.status(500).json({ Error: 'A Server Error Occured' });
