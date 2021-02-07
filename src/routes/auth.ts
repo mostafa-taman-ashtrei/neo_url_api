@@ -72,10 +72,10 @@ router.post('/login', async (req: Request, res: Response) => {
         if (Object.keys(errors).length > 0) return res.status(400).json(errors);
 
         const user: myUser | null = await User.findOne({ username });
-        if (!user) return res.status(404).json({ Error: 'Invalid username' });
+        if (!user) return res.status(404).json({ username: 'Invalid username' });
 
         const matchPwd = await compare(password, user.password);
-        if (!matchPwd) return res.status(404).json({ Error: 'Invalid password' });
+        if (!matchPwd) return res.status(404).json({ password: 'Invalid password' });
 
         // create token and set a cookie
 
