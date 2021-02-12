@@ -14,17 +14,17 @@ router.post('/shrink', isAuth, async (req: Request, res: Response) => {
 
     try {
         const isValidUrl = validUrl.isWebUri(fullUrl);
-        if (!isValidUrl) return res.status(400).json({ msg: 'Invalid Url' });
+        if (!isValidUrl) return res.status(400).json({ fullUrl: 'Invalid Url' });
 
         const exists: MyUrl | null = await Url.findOne({ fullUrl });
         const IsshortUrlTaken: MyUrl | null = await Url.findOne({ shortUrl });
 
-        if (IsshortUrlTaken) return res.status(422).json({ msg: 'this short id already exists' });
+        if (IsshortUrlTaken) return res.status(422).json({ shortUrl: 'this short id already exists' });
 
         if (exists) {
-            return res.json({
-                msg: 'This url has already been shrunk',
-                shortUrl: exists,
+            return res.status(400).json({
+                fullUrl: 'This url has already been shrunk',
+                url: exists.shortUrl,
             });
         }
 
