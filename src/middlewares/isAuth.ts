@@ -13,7 +13,16 @@ const isAuth = async (req: Request, res: Response, next: NextFunction) => {
         const user: myUser | null = await User.findOne({ username });
         if (!user) throw new Error('Unauthenticated');
 
-        res.locals.user = user;
+        const resUser = {
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            username: user.username,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+        };
+
+        res.locals.user = resUser;
         return next();
     } catch (e) {
         console.log(e);
